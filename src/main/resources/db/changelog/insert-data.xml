@@ -1,0 +1,55 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog/1.9"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog/1.9
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-1.9.xsd">
+
+    <changeSet id="01" author="TA">
+        <comment>Inserting data to vehicle_log table</comment>
+        <insert tableName="vehicle_log">
+            <column name="date" value="2022-01-01T08:00:00"/>
+            <column name="vehicle_number" value="ABC123"/>
+            <column name="vehicle_owner" value="John Doe"/>
+            <column name="odometer_start" value="1000"/>
+            <column name="odometer_end" value="1200"/>
+            <column name="route" value="New York - Boston"/>
+            <column name="description" value="Visited family in Boston"/>
+        </insert>
+        <insert tableName="vehicle_log">
+            <column name="date" value="2022-02-01T09:00:00"/>
+            <column name="vehicle_number" value="ABC123"/>
+            <column name="vehicle_owner" value="John Doe"/>
+            <column name="odometer_start" value="1200"/>
+            <column name="odometer_end" value="1400"/>
+            <column name="route" value="Boston - Washington DC"/>
+            <column name="description" value="Business trip to DC"/>
+        </insert>
+        <insert tableName="vehicle_log">
+            <column name="date" value="2022-03-01T12:00:00"/>
+            <column name="vehicle_number" value="ABC123"/>
+            <column name="vehicle_owner" value="John Doe"/>
+            <column name="odometer_start" value="1400"/>
+            <column name="odometer_end" value="1600"/>
+            <column name="route" value="Washington DC - New York"/>
+            <column name="description" value="Returned home from business trip"/>
+        </insert>
+        <insert tableName="vehicle_log">
+            <column name="date" value="2022-04-01T10:00:00"/>
+            <column name="vehicle_number" value="XYZ789"/>
+            <column name="vehicle_owner" value="Jane Smith"/>
+            <column name="odometer_start" value="5000"/>
+            <column name="odometer_end" value="5200"/>
+            <column name="route" value="Los Angeles - San Francisco"/>
+            <column name="description" value="Weekend trip to San Francisco"/>
+        </insert>
+        <insert tableName="vehicle_log">
+            <column name="date" value="2022-05-01T11:00:00"/>
+            <column name="vehicle_number" value="XYZ789"/>
+            <column name="vehicle_owner" value="Jane Smith"/>
+            <column name="odometer_start" value="5200"/>
+            <column name="odometer_end" value="5400"/>
+            <column name="route" value="San Francisco - Lake Tahoe"/>
+            <column name="description" value="Vacation in Lake Tahoe"/>
+        </insert>
+    </changeSet>
+
+</databaseChangeLog>
