@@ -42,15 +42,15 @@ The application will start on port 8080. You can access the Swagger UI for the A
 API Endpoints
 The API provides the following endpoints:
 
-POST /logs: adds a new log entry
+POST /travel_log: adds a new log entry
 
-PUT /logs/{id}: updates an existing log entry by ID
+PUT /travel_log/{id}: updates an existing log entry by ID
 
-DELETE /logs/{id}: deletes an existing log entry by ID
+DELETE /travel_log/{id}: deletes an existing log entry by ID
 
-GET /logs: retrieves a list of log entries filtered by date range, vehicle registration number, and/or vehicle owner's name
+GET /travel_log: retrieves a list of log entries filtered by date range, vehicle registration number, and/or vehicle owner's name
 
-POST /logs/report: generates a report of log entries grouped by date and sorted by odometer initial value, filtered by date range, vehicle registration number, and/or vehicle owner's name
+POST /travel_log/report: generates a report of log entries grouped by date and sorted by odometer initial value, filtered by date range, vehicle registration number, and/or vehicle owner's name
 
 
 Data Model
