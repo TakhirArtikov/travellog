@@ -6,6 +6,7 @@ import travellog.dto.ReportResponse;
 import travellog.model.VehicleLog;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface TravelLogRepository {
 
@@ -15,9 +16,9 @@ public interface TravelLogRepository {
 
     void delete(Long id);
 
-    List<VehicleLog> generateReport();
+    ReportResponse generateReport();
 
-    ReportResponse generateReportWithFilter(FilterDto dto);
+    ReportResponse generateReportWithFilter(Optional<FilterDto> dto);
 
     VehicleLog findById(long id);
 

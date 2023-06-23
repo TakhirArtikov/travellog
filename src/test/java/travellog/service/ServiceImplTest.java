@@ -12,6 +12,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
+import travellog.dto.ReportResponse;
 import travellog.dto.VehicleDto;
 import travellog.mapper.VehicleMapper;
 import travellog.model.VehicleLog;
@@ -22,13 +23,14 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @RunWith(MockitoJUnitRunner.class)
-public class ServiceImplTest {
+class ServiceImplTest {
 
     @Mock
     private TravelLogRepository travelLogRepository;
@@ -87,28 +89,14 @@ public class ServiceImplTest {
 
     @Test
     void testReport() throws IOException {
-        VehicleLog model1 = new VehicleLog("ABC123", "John Doe", 2000L, 3000L, "Route 1", "Desc 1"); // Sample data
-        VehicleLog model2 = new VehicleLog("DEF456", "Jane Smith", 4000L, 5000L, "Route 2", "Desc 2"); // Sample data
 
-        List<VehicleLog> mockList = new ArrayList<>();
-        mockList.add(model1);
-        mockList.add(model2);
+        when(travelLogRepository.generateReport()).thenReturn(new ReportResponse());
 
-        when(travelLogRepository.generateReport()).thenReturn(mockList);
+        ReportResponse reportResponse = vehicleService
+                .generateReportWithFilter(Optional.empty());
 
-        VehicleDto dto1 = new VehicleDto("ABC123", "John Doe", 2000L, 3000L, "Route 1", "Desc 1"); // Expected DTO
-        VehicleDto dto2 = new VehicleDto("DEF456", "Jane Smith", 4000L, 5000L, "Route 2", "Desc 2"); // Expected DTO
+        assertEquals(new ReportResponse(), reportResponse);
 
-        List<VehicleDto> expectedList = new ArrayList<>();
-        expectedList.add(dto1);
-        expectedList.add(dto2);
-
-        when(mapper.toDto(model1)).thenReturn(dto1);
-        when(mapper.toDto(model2)).thenReturn(dto2);
-
-        List<VehicleDto> actualList = vehicleService.generateReport();
-
-        assertEquals(expectedList, actualList);
     }
 
 }

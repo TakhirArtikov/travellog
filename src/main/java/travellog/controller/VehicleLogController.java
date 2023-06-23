@@ -17,6 +17,7 @@ import travellog.service.VehicleService;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/travel_log")
@@ -71,22 +72,10 @@ public class VehicleLogController {
                     content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ReportResponse.class))))
     })
     @PostMapping("/report")
-    public ResponseEntity<?> generateReport(@RequestBody FilterDto filterDto) {
+    public ResponseEntity<ReportResponse> generateReport(@RequestBody Optional<FilterDto> filterDto) {
 
-        if (filterDto != null) {
-            try {
-                List<ReportResponse> dtos = new ArrayList<>();
-                dtos.add(service.generateReportWithFilter(filterDto));
-                if (dtos.isEmpty()) {
-                    return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-                }
-                return new ResponseEntity<>(dtos, HttpStatus.OK);
 
-            } catch (Exception e) {
-                return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-        } else {
-            return new ResponseEntity<>(service.generateReport(), HttpStatus.OK);
-        }
+        return new ResponseEntity<>(service.generateReportWithFilter(filterDto),HttpStatus.OK);
+
     }
 }

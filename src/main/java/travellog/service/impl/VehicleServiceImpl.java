@@ -1,6 +1,8 @@
 package travellog.service.impl;
 
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import travellog.dto.FilterDto;
@@ -13,6 +15,7 @@ import travellog.service.VehicleService;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -47,17 +50,19 @@ public class VehicleServiceImpl implements VehicleService {
     }
 
     @Override
-    public ReportResponse generateReportWithFilter(FilterDto filterDto) {
+    public ReportResponse generateReportWithFilter(Optional<FilterDto> filterDto) {
+        if(!filterDto.isEmpty()) {
+            return travelLogRepository.generateReportWithFilter(filterDto);
+        }else {
+            return travelLogRepository.generateReport();
 
-        return travelLogRepository.generateReportWithFilter(filterDto);
+        }
     }
 
     @Override
     public List<VehicleDto> generateReport() {
 
-        return travelLogRepository.generateReport().stream()
-                .map(mapper::toDto)
-                .toList();
+        return travelLogRepository.generateReport().getVehicleList();
     }
 
 }

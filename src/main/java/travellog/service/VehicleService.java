@@ -1,11 +1,13 @@
 package travellog.service;
 
 
+import org.springframework.http.ResponseEntity;
 import travellog.dto.FilterDto;
 import travellog.dto.ReportResponse;
 import travellog.dto.VehicleDto;
 
 import java.util.List;
+import java.util.Optional;
 
 
 public interface VehicleService {
@@ -18,5 +20,5 @@ public interface VehicleService {
 
     List<VehicleDto> generateReport();
 
-    ReportResponse generateReportWithFilter(FilterDto dto);
+    ReportResponse generateReportWithFilter(Optional<FilterDto> dto);
 }

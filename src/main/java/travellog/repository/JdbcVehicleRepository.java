@@ -15,6 +15,7 @@ import travellog.model.VehicleLog;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 @AllArgsConstructor
@@ -47,23 +48,32 @@ public class JdbcVehicleRepository implements TravelLogRepository {
     }
 
     @Override
-    public List<VehicleLog> generateReport() {
-        return jdbcTemplate.query("SELECT date, vehicle_number, vehicle_owner, odometer_start, odometer_end, route, description \n" +
-                        "FROM vehicle_log \n" +
-                        "GROUP BY date, vehicle_number, vehicle_owner, odometer_start, odometer_end, route, description \n" +
-                        "ORDER BY odometer_start;\n",
-                BeanPropertyRowMapper.newInstance(VehicleLog.class));
+    public ReportResponse generateReport() {
+        String sql = "SELECT date, vehicle_number, vehicle_owner, odometer_start, odometer_end, route, description " +
+                        "FROM vehicle_log " +
+                        "GROUP BY date, vehicle_number, vehicle_owner, odometer_start, odometer_end, route, description " +
+                        "ORDER BY odometer_start;";
+
+        List<VehicleLog> vehicleLogs = jdbcTemplate.query(sql, BeanPropertyRowMapper.newInstance(VehicleLog.class));
+        List<VehicleDto> vehicleDtos = vehicleLogs.stream()
+                .map(vehicleMapper::toDto)
+                .toList();
+        ReportResponse response = new ReportResponse();
+        response.setVehicleList(vehicleDtos);
+        response.setTotalDistance(null);
+
+        return response;
     }
 
     @Override
-    public ReportResponse generateReportWithFilter(FilterDto dto) {
+    public ReportResponse generateReportWithFilter(Optional<FilterDto> dto) {
 
 
         String sql = "SELECT vehicle_log.date, vehicle_number, vehicle_owner, odometer_start, odometer_end, route, description "
                 + " FROM vehicle_log "
-                + " WHERE vehicle_log.date BETWEEN '" + dto.getPeriodStart() + "' AND '" + dto.getPeriodEnd()
-                + "' AND  vehicle_number = '" + dto.getVehicleNumber()
-                + "' AND vehicle_owner= '" + dto.getVehicleOwner()
+                + " WHERE vehicle_log.date BETWEEN '" + dto.get().getPeriodStart() + "' AND '" + dto.get().getPeriodEnd() + "'"
+                + " AND  vehicle_number = '" + dto.get().getVehicleNumber()
+                + "' AND vehicle_owner= '" + dto.get().getVehicleOwner()
                 + "' GROUP BY vehicle_log.date, vehicle_number, vehicle_owner, odometer_start, odometer_end, route, description "
                 + " ORDER BY odometer_start";
 
