@@ -1,27 +1,29 @@
 package travellog.service.impl;
 
-import lombok.AllArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpClientErrorException;
+import reactor.core.publisher.Mono;
 import travellog.dto.FilterDto;
 import travellog.dto.ReportResponse;
 import travellog.dto.VehicleDto;
 import travellog.mapper.VehicleMapper;
 import travellog.model.VehicleLog;
 import travellog.repository.TravelLogRepository;
+import travellog.repository.reactive.VehicleReactiveRepository;
 import travellog.service.VehicleService;
 
+
+import java.io.IOException;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class VehicleServiceImpl implements VehicleService {
 
     private final TravelLogRepository travelLogRepository;
+    private final VehicleReactiveRepository vehicleReactiveRepository;
     private final VehicleMapper mapper;
 
     @Override
@@ -41,28 +43,32 @@ public class VehicleServiceImpl implements VehicleService {
     }
 
     @Override
-    public void delete(Long id) {
-        try {
-            travelLogRepository.delete(id);
-        } catch (HttpClientErrorException.NotFound e) {
-            e.getMessage();
-        }
+    public Mono<Void> delete(Long id) {
+        return vehicleReactiveRepository.deleteById(id);
     }
 
     @Override
-    public ReportResponse generateReportWithFilter(Optional<FilterDto> filterDto) {
-        if(!filterDto.isEmpty()) {
-            return travelLogRepository.generateReportWithFilter(filterDto);
+    public ReportResponse generateReportWithFilter(Optional<FilterDto> filterDto) throws IOException {
+        ReportResponse response = new ReportResponse();
+
+        if(filterDto.isPresent()) {
+            List<VehicleDto> vehicleDtos = travelLogRepository.generateReportWithFilter(filterDto).stream()
+                    .map(mapper::toDto)
+                    .toList();
+            Long totalDistance = vehicleDtos.stream()
+                    .map(v -> v.getOdometerEnd() - v.getOdometerStart())
+                    .reduce(0L, Long::sum);
+            response.setVehicleList(vehicleDtos);
+            response.setTotalDistance(totalDistance);
+            return response;
         }else {
-            return travelLogRepository.generateReport();
+          List<VehicleDto> vehicleDtos = travelLogRepository.generateReport().stream()
+                    .map(mapper::toDto)
+                    .toList();
+            response.setVehicleList(vehicleDtos);
+            response.setTotalDistance(null);
+            return response;
 
         }
     }
-
-    @Override
-    public List<VehicleDto> generateReport() {
-
-        return travelLogRepository.generateReport().getVehicleList();
-    }
-
 }

@@ -1,0 +1,50 @@
+{
+  "vehicleList": [
+    {
+      "date": "2022-01-01",
+      "vehicleNumber": "ABC123",
+      "vehicleOwner": "John Doe",
+      "odometerStart": 1000,
+      "odometerEnd": 1200,
+      "route": "New York - Boston",
+      "description": "Visited family in Boston"
+    },
+    {
+      "date": "2022-02-01",
+      "vehicleNumber": "ABC123",
+      "vehicleOwner": "John Doe",
+      "odometerStart": 1200,
+      "odometerEnd": 1400,
+      "route": "Boston - Washington DC",
+      "description": "Business trip to DC"
+    },
+    {
+      "date": "2022-03-01",
+      "vehicleNumber": "ABC123",
+      "vehicleOwner": "John Doe",
+      "odometerStart": 1400,
+      "odometerEnd": 1600,
+      "route": "Washington DC - New York",
+      "description": "Returned home from business trip"
+    },
+    {
+      "date": "2022-04-01",
+      "vehicleNumber": "XYZ789",
+      "vehicleOwner": "Jane Smith",
+      "odometerStart": 5000,
+      "odometerEnd": 5200,
+      "route": "Los Angeles - San Francisco",
+      "description": "Weekend trip to San Francisco"
+    },
+    {
+      "date": "2022-05-01",
+      "vehicleNumber": "XYZ789",
+      "vehicleOwner": "Jane Smith",
+      "odometerStart": 5200,
+      "odometerEnd": 5400,
+      "route": "San Francisco - Lake Tahoe",
+      "description": "Vacation in Lake Tahoe"
+    }
+  ],
+  "totalDistance": null
+}

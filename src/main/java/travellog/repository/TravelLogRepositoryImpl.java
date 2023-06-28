@@ -1,16 +1,12 @@
 package travellog.repository;
 
-import lombok.AllArgsConstructor;
-import org.apache.logging.log4j.util.Strings;
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Profile;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.stereotype.Repository;
 import travellog.dto.FilterDto;
-import travellog.dto.ReportResponse;
-import travellog.dto.VehicleDto;
-import travellog.mapper.VehicleMapper;
 import travellog.model.VehicleLog;
 
 import java.time.LocalDateTime;
@@ -18,10 +14,9 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-@AllArgsConstructor
-public class JdbcVehicleRepository implements TravelLogRepository {
+@RequiredArgsConstructor
+public class TravelLogRepositoryImpl implements TravelLogRepository {
 
-    private final VehicleMapper vehicleMapper;
     private final JdbcTemplate jdbcTemplate;
 
     @Override
@@ -48,25 +43,18 @@ public class JdbcVehicleRepository implements TravelLogRepository {
     }
 
     @Override
-    public ReportResponse generateReport() {
+    public List<VehicleLog> generateReport() {
         String sql = "SELECT date, vehicle_number, vehicle_owner, odometer_start, odometer_end, route, description " +
                         "FROM vehicle_log " +
                         "GROUP BY date, vehicle_number, vehicle_owner, odometer_start, odometer_end, route, description " +
                         "ORDER BY odometer_start;";
 
-        List<VehicleLog> vehicleLogs = jdbcTemplate.query(sql, BeanPropertyRowMapper.newInstance(VehicleLog.class));
-        List<VehicleDto> vehicleDtos = vehicleLogs.stream()
-                .map(vehicleMapper::toDto)
-                .toList();
-        ReportResponse response = new ReportResponse();
-        response.setVehicleList(vehicleDtos);
-        response.setTotalDistance(null);
+        return jdbcTemplate.query(sql, BeanPropertyRowMapper.newInstance(VehicleLog.class));
 
-        return response;
     }
 
     @Override
-    public ReportResponse generateReportWithFilter(Optional<FilterDto> dto) {
+    public List<VehicleLog> generateReportWithFilter(Optional<FilterDto> dto) {
 
 
         String sql = "SELECT vehicle_log.date, vehicle_number, vehicle_owner, odometer_start, odometer_end, route, description "
@@ -78,18 +66,7 @@ public class JdbcVehicleRepository implements TravelLogRepository {
                 + " ORDER BY odometer_start";
 
 
-        List<VehicleLog> vehicleLogs = jdbcTemplate.query(sql, BeanPropertyRowMapper.newInstance(VehicleLog.class));
-        List<VehicleDto> vehicleDtos = vehicleLogs.stream()
-                .map(vehicleMapper::toDto)
-                .toList();
-        Long totalDistance = vehicleDtos.stream()
-                .map(v -> v.getOdometerEnd() - v.getOdometerStart())
-                .reduce(0L, Long::sum);
-        ReportResponse response = new ReportResponse();
-        response.setVehicleList(vehicleDtos);
-        response.setTotalDistance(totalDistance);
-
-        return response;
+        return jdbcTemplate.query(sql, BeanPropertyRowMapper.newInstance(VehicleLog.class));
     }
 
     @Override

@@ -1,11 +1,13 @@
 package travellog.service;
 
 
-import org.springframework.http.ResponseEntity;
+
+import reactor.core.publisher.Mono;
 import travellog.dto.FilterDto;
 import travellog.dto.ReportResponse;
 import travellog.dto.VehicleDto;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,9 +18,7 @@ public interface VehicleService {
 
     void edit(Long id, VehicleDto dto);
 
-    void delete(Long id);
+    Mono<Void> delete(Long id);
 
-    List<VehicleDto> generateReport();
-
-    ReportResponse generateReportWithFilter(Optional<FilterDto> dto);
+    ReportResponse generateReportWithFilter(Optional<FilterDto> dto) throws IOException;
 }

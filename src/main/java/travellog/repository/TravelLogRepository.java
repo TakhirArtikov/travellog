@@ -16,9 +16,9 @@ public interface TravelLogRepository {
 
     void delete(Long id);
 
-    ReportResponse generateReport();
+    List<VehicleLog> generateReport();
 
-    ReportResponse generateReportWithFilter(Optional<FilterDto> dto);
+    List<VehicleLog> generateReportWithFilter(Optional<FilterDto> dto);
 
     VehicleLog findById(long id);
 

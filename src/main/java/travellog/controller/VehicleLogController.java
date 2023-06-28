@@ -6,22 +6,22 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Mono;
 import travellog.dto.FilterDto;
 import travellog.dto.ReportResponse;
 import travellog.dto.VehicleDto;
 import travellog.service.VehicleService;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.IOException;
 import java.util.Optional;
 
 @RestController
 @RequestMapping("/travel_log")
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class VehicleLogController {
 
     private final VehicleService service;
@@ -60,10 +60,9 @@ public class VehicleLogController {
                     content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = String.class))))
     })
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> delete(@PathVariable("id") long id) {
-        service.delete(id);
-        return new ResponseEntity<>("Vehicle log was deleted successfully.", HttpStatus.OK);
-
+    public Mono<String> delete(@PathVariable("id") long id) {
+        return service.delete(id)
+                .thenReturn("The vehicle is deleted!");
     }
 
     @Operation(summary = "Generate report")
@@ -72,8 +71,7 @@ public class VehicleLogController {
                     content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ReportResponse.class))))
     })
     @PostMapping("/report")
-    public ResponseEntity<ReportResponse> generateReport(@RequestBody Optional<FilterDto> filterDto) {
-
+    public ResponseEntity<ReportResponse> generateReport(@RequestBody Optional<FilterDto> filterDto) throws IOException {
 
         return new ResponseEntity<>(service.generateReportWithFilter(filterDto),HttpStatus.OK);
 

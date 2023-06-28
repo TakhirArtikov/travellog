@@ -11,19 +11,24 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.stubbing.Answer;
 import org.springframework.test.util.ReflectionTestUtils;
+import travellog.dto.FilterDto;
 import travellog.dto.ReportResponse;
 import travellog.dto.VehicleDto;
 import travellog.mapper.VehicleMapper;
 import travellog.model.VehicleLog;
 import travellog.repository.TravelLogRepository;
+import travellog.repository.reactive.VehicleReactiveRepository;
 import travellog.service.impl.VehicleServiceImpl;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
@@ -41,34 +46,40 @@ class ServiceImplTest {
     @InjectMocks
     private VehicleServiceImpl vehicleService;
 
+    @Mock
+    private VehicleReactiveRepository vehicleReactiveRepository;
+
+    ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
+
+
+
+   VehicleDto dto = objectMapper.readValue(new File("./src/test/resources/data.json"),
+                new TypeReference<>() {
+    });
+
+    ServiceImplTest() throws IOException {
+    }
+
     @BeforeEach
     void setUp() {
         ReflectionTestUtils.setField(vehicleService, "travelLogRepository", travelLogRepository);
         ReflectionTestUtils.setField(vehicleService, "mapper", mapper);
+        ReflectionTestUtils.setField(vehicleService,"vehicleReactiveRepository",vehicleReactiveRepository);
     }
 
 
     @Test
-    void testSave() throws IOException {
+    void testSave() {
 
-        ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
-
-        VehicleDto dto = objectMapper.readValue(new File("./src/test/resources/data.json"),
-                new TypeReference<>() {
-                });
         VehicleServiceImpl vehicleService = mock(VehicleServiceImpl.class);
         vehicleService.save(dto);
         verify(vehicleService, times(1)).save(dto);
     }
 
     @Test
-    void testEdit() throws IOException {
+    void testEdit() {
         Long id = 1L;
-        ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
 
-        VehicleDto dto = objectMapper.readValue(new File("./src/test/resources/data.json"),
-                new TypeReference<>() {
-                });
         VehicleServiceImpl vehicleService = mock(VehicleServiceImpl.class);
         vehicleService.edit(id, dto);
         verify(vehicleService, times(1)).edit(id, dto);
@@ -83,19 +94,58 @@ class ServiceImplTest {
 
         vehicleService.delete(id);
 
-        verify(travelLogRepository, times(1)).delete(id);
+        verify(vehicleReactiveRepository, times(1)).deleteById(id);
 
     }
 
     @Test
     void testReport() throws IOException {
+        List<VehicleLog> listVehicleLog = objectMapper.readValue(new File("./src/test/resources/vehicleLog.json"), new TypeReference<>() {});
+        when(travelLogRepository.generateReport()).thenReturn(listVehicleLog);
 
-        when(travelLogRepository.generateReport()).thenReturn(new ReportResponse());
+        when(mapper.toDto(any(VehicleLog.class))).thenAnswer((Answer<VehicleDto>) invocation -> {
+            VehicleLog vehicleLog = invocation.getArgument(0);
+            VehicleDto vehicleDto = new VehicleDto();
+            vehicleDto.setVehicleNumber(vehicleLog.getVehicleNumber());
+            vehicleDto.setVehicleOwner(vehicleLog.getVehicleOwner());
+            vehicleDto.setDate(vehicleLog.getDate());
+            vehicleDto.setOdometerStart(vehicleLog.getOdometerStart());
+            vehicleDto.setOdometerEnd(vehicleLog.getOdometerEnd());
+            vehicleDto.setRoute(vehicleLog.getRoute());
+            vehicleDto.setDescription(vehicleLog.getDescription());
+            return vehicleDto;
+        });
+        ReportResponse actualReportResponse = vehicleService.generateReportWithFilter(Optional.empty());
 
-        ReportResponse reportResponse = vehicleService
-                .generateReportWithFilter(Optional.empty());
+        ReportResponse  expectedReportResponse = objectMapper.readValue(new File("./src/test/resources/responseUnfiltered.json"), ReportResponse.class);
 
-        assertEquals(new ReportResponse(), reportResponse);
+        assertEquals(expectedReportResponse, actualReportResponse);
+
+    }
+
+    @Test
+    void testReportWithFilter() throws IOException {
+        FilterDto dto= objectMapper.readValue(new File("./src/test/resources/filterDto.json"), FilterDto.class);
+        List<VehicleLog>  vehicleLogList = objectMapper.readValue(new File("./src/test/resources/filteredDto.json"), new TypeReference<>() {});
+        when(travelLogRepository.generateReportWithFilter(Optional.ofNullable(dto))).thenReturn(vehicleLogList);
+        when(mapper.toDto(any(VehicleLog.class))).thenAnswer((Answer<VehicleDto>) invocation -> {
+            VehicleLog vehicleLog = invocation.getArgument(0);
+            VehicleDto vehicleDto = new VehicleDto();
+            vehicleDto.setVehicleNumber(vehicleLog.getVehicleNumber());
+            vehicleDto.setVehicleOwner(vehicleLog.getVehicleOwner());
+            vehicleDto.setDate(vehicleLog.getDate());
+            vehicleDto.setOdometerStart(vehicleLog.getOdometerStart());
+            vehicleDto.setOdometerEnd(vehicleLog.getOdometerEnd());
+            vehicleDto.setRoute(vehicleLog.getRoute());
+            vehicleDto.setDescription(vehicleLog.getDescription());
+            return vehicleDto;
+        });
+        ReportResponse actualResponse = vehicleService
+                .generateReportWithFilter(Optional.ofNullable(dto));
+
+        ReportResponse expectedResponse= objectMapper.readValue(new File("./src/test/resources/responseFiltered.json"),ReportResponse.class);
+
+        assertEquals(expectedResponse, actualResponse);
 
     }
 
